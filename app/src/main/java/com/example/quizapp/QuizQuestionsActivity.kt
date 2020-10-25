@@ -1,11 +1,11 @@
 package com.example.quizapp
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
@@ -19,11 +19,17 @@ class QuizQuestionsActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var questionList: ArrayList<Question>
     private var selectedOptionPosition = 0
 
+
+    private var userName = ""
+
+    private var correctAnswers = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_quiz_questions)
 
+        // getting user name from activity
+        userName = intent.getStringExtra(Constants.USER_NAME) ?: ""
         questionList = Constants.getQuestions()
 
         setQuestion()
@@ -126,11 +132,12 @@ class QuizQuestionsActivity : AppCompatActivity(), View.OnClickListener {
                             setQuestion()
                         }
                         else -> {
-                            Toast.makeText(
-                                this,
-                                "U have successfully completed the Quiz!",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            val intent = Intent(this, ResultActivity::class.java)
+                            intent.putExtra(Constants.USER_NAME, userName)
+                            intent.putExtra(Constants.CORRECT_ANSWERS, correctAnswers)
+                            intent.putExtra(Constants.TOTAL_QUESTION, questionList.size)
+                            startActivity(intent)
+                            finish()
                         }
                     }
                 } else {
@@ -139,6 +146,8 @@ class QuizQuestionsActivity : AppCompatActivity(), View.OnClickListener {
 
                     if (question.correctAnswer != selectedOptionPosition) {
                         answerView(selectedOptionPosition, R.drawable.wrong_option_border_bg)
+                    } else {
+                        correctAnswers++
                     }
                     answerView(question.correctAnswer, R.drawable.correct_option_border_bg)
 
