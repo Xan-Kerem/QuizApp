@@ -48,7 +48,7 @@ class QuizQuestionsActivity : AppCompatActivity(), View.OnClickListener {
         defaultOptionsView()
 
         val question = questionList[currentPosition - 1]
-binding.submitBtn.text =
+
         if (currentPosition == questionList.size) {
             binding.submitBtn.text = "FINISH"
         } else {
