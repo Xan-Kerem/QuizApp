@@ -5,6 +5,7 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
@@ -25,7 +26,7 @@ class QuizQuestionsActivity : AppCompatActivity(), View.OnClickListener {
 
         questionList = Constants.getQuestions()
 
-        setQuestions()
+        setQuestion()
 
         setOnclickListener()
     }
@@ -38,16 +39,21 @@ class QuizQuestionsActivity : AppCompatActivity(), View.OnClickListener {
             optionTwoTv.setOnClickListener(this@QuizQuestionsActivity)
             optionThreeTv.setOnClickListener(this@QuizQuestionsActivity)
             optionFourTv.setOnClickListener(this@QuizQuestionsActivity)
-
+            submitBtn.setOnClickListener(this@QuizQuestionsActivity)
         }
     }
 
-    private fun setQuestions() {
-
-        val question = questionList[currentPosition - 1]
-        currentPosition = 1
+    private fun setQuestion() {
 
         defaultOptionsView()
+
+        val question = questionList[currentPosition - 1]
+binding.submitBtn.text =
+        if (currentPosition == questionList.size) {
+            binding.submitBtn.text = "FINISH"
+        } else {
+            binding.submitBtn.text = "SUBMIT"
+        }
 
         binding.apply {
 
@@ -91,7 +97,9 @@ class QuizQuestionsActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(v: View?) {
+
         when (v?.id) {
+
             binding.optionOneTv.id -> {
                 selectedOptionView(binding.optionOneTv, 1)
             }
@@ -107,12 +115,67 @@ class QuizQuestionsActivity : AppCompatActivity(), View.OnClickListener {
             binding.optionFourTv.id -> {
                 selectedOptionView(binding.optionFourTv, 4)
             }
+            binding.submitBtn.id -> {
+
+                if (selectedOptionPosition == 0) {
+
+                    currentPosition++
+
+                    when {
+                        currentPosition <= questionList.size -> {
+                            setQuestion()
+                        }
+                        else -> {
+                            Toast.makeText(
+                                this,
+                                "U have successfully completed the Quiz!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                } else {
+
+                    val question = questionList[currentPosition - 1]
+
+                    if (question.correctAnswer != selectedOptionPosition) {
+                        answerView(selectedOptionPosition, R.drawable.wrong_option_border_bg)
+                    }
+                    answerView(question.correctAnswer, R.drawable.correct_option_border_bg)
+
+                    if (currentPosition == questionList.size) {
+                        binding.submitBtn.text = "FINISH"
+
+                    } else {
+                        binding.submitBtn.text = "GO TO NEXT QUESTION"
+
+                    }
+                    selectedOptionPosition = 0
+                }
+            }
+        }
+    }
+
+    private fun answerView(answer: Int, drawableView: Int) {
+        when (answer) {
+            1 -> {
+                binding.optionOneTv.background = ContextCompat.getDrawable(this, drawableView)
+            }
+            2 -> {
+                binding.optionTwoTv.background = ContextCompat.getDrawable(this, drawableView)
+            }
+            3 -> {
+                binding.optionThreeTv.background = ContextCompat.getDrawable(this, drawableView)
+            }
+            4 -> {
+                binding.optionFourTv.background = ContextCompat.getDrawable(this, drawableView)
+            }
         }
     }
 
     private fun selectedOptionView(tv: TextView, selectedOptionNumber: Int) {
-        // reset everything to default
+        // resets everything to default
         defaultOptionsView()
+
         selectedOptionPosition = selectedOptionNumber
 
         tv.setTextColor(Color.parseColor("#363A43"))
